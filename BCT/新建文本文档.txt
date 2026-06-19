@@ -1,0 +1,116 @@
+% 设置输入和输出目录
+inputDir = 'F:\G0\40';  % 输入目录
+outputDir = 'F:\G1\40'; % 输出目录
+
+% 获取输入目录下所有子目录
+subDirs = dir(inputDir);
+subDirs = subDirs([subDirs.isdir]); % 仅保留文件夹项
+subDirs = subDirs(~ismember({subDirs.name}, {'.', '..'})); % 去除 "." 和 ".."
+
+% 循环处理每个子目录
+for i = 1:length(subDirs)
+    subDirName = subDirs(i).name; % 子目录名称
+    inputSubDir = fullfile(inputDir, subDirName); % 子目录完整路径
+    outputSubDir = fullfile(outputDir, subDirName); % 输出子目录完整路径
+    
+    % 如果输出子目录不存在，则创建新文件夹
+    if ~exist(outputSubDir, 'dir')
+        mkdir(outputSubDir);
+    end
+    
+    % 获取子目录下所有.mat文件
+    matFiles = dir(fullfile(inputSubDir, '*.mat'));
+    
+    % 循环处理每个.mat文件
+    for j = 1:length(matFiles)
+        matFileName = matFiles(j).name; % .mat文件名称
+        
+        % 加载.mat文件中的数据
+        matFilePath = fullfile(inputSubDir, matFileName);
+        data = load(matFilePath);
+        
+        % 调用函数处理数据
+        % 这里假设 betweenness_bin 函数的输出参数名为 output1 和 output2
+        [output1, output2] = betweenness_bin(data);
+        output3 = assortativity_bin(data); % 假设 assortativity_bin 函数的输出参数名为 output3
+        output4 = edge_betweenness_bin(data); % 假设 edge_betweenness_bin 函数的输出参数名为 output4
+        
+        % 将结果保存到输出子目录中
+        result1FileName = strrep(matFileName, '.mat', '_output1.mat'); % 添加后缀"_output1"作为输出文件名称
+        result2FileName = strrep(matFileName, '.mat', '_output2.mat'); % 添加后缀"_output2"作为输出文件名称
+        result3FileName = strrep(matFileName, '.mat', '_output3.mat'); % 添加后缀"_output3"作为输出文件名称
+        result4FileName = strrep(matFileName, '.mat', '_output4.mat'); % 添加后缀"_output4"作为输出文件名称
+        
+        result1FilePath = fullfile(outputSubDir, result1FileName);
+        result2FilePath = fullfile(outputSubDir, result2FileName);
+        result3FilePath = fullfile(outputSubDir, result3FileName);
+        result4FilePath = fullfile(outputSubDir, result4FileName);
+        
+        save(result1FilePath, 'output1');
+        save(result2FilePath, 'output2');
+        save(result3FilePath, 'output3');
+        save(result4FilePath, 'output4');
+    end
+end
+
+
+
+
+% 设置输入和输出目录
+inputDir = 'F:\G0\40';  % 输入目录
+outputDir = 'F:\G1\40'; % 输出目录
+
+% 获取输入目录下所有子目录
+subDirs = dir(inputDir);
+subDirs = subDirs([subDirs.isdir]); % 仅保留文件夹项
+subDirs = subDirs(~ismember({subDirs.name}, {'.', '..'})); % 去除 "." 和 ".."
+
+% 要处理的特定文件名
+targetFileName = 'Sleep stage N1_10770-10800.mat';
+
+% 循环处理每个子目录
+for i = 1:length(subDirs)
+    subDirName = subDirs(i).name; % 子目录名称
+    inputSubDir = fullfile(inputDir, subDirName); % 子目录完整路径
+    outputSubDir = fullfile(outputDir, subDirName); % 输出子目录完整路径
+    
+    % 如果输出子目录不存在，则创建新文件夹
+    if ~exist(outputSubDir, 'dir')
+        mkdir(outputSubDir);
+    end
+    
+    % 查找要处理的特定文件
+    targetFilePath = fullfile(inputSubDir, targetFileName);
+    
+    % 检查文件是否存在
+    if exist(targetFilePath, 'file')
+        % 加载.mat文件中的数据
+        data = load(targetFilePath);
+        
+        % 调用函数处理数据
+        % 这里假设 betweenness_bin 函数的输出参数名为 output1 和 output2
+        [output1, output2] = betweenness_bin(data);
+        output3 = assortativity_bin(data); % 假设 assortativity_bin 函数的输出参数名为 output3
+        output4 = edge_betweenness_bin(data); % 假设 edge_betweenness_bin 函数的输出参数名为 output4
+        
+        % 将结果保存到输出子目录中
+        result1FileName = strrep(targetFileName, '.mat', '_output1.mat'); % 添加后缀"_output1"作为输出文件名称
+        result2FileName = strrep(targetFileName, '.mat', '_output2.mat'); % 添加后缀"_output2"作为输出文件名称
+        result3FileName = strrep(targetFileName, '.mat', '_output3.mat'); % 添加后缀"_output3"作为输出文件名称
+        result4FileName = strrep(targetFileName, '.mat', '_output4.mat'); % 添加后缀"_output4"作为输出文件名称
+        
+        result1FilePath = fullfile(outputSubDir, result1FileName);
+        result2FilePath = fullfile(outputSubDir, result2FileName);
+        result3FilePath = fullfile(outputSubDir, result3FileName);
+        result4FilePath = fullfile(outputSubDir, result4FileName);
+        
+        save(result1FilePath, 'output1');
+        save(result2FilePath, 'output2');
+        save(result3FilePath, 'output3');
+        save(result4FilePath, 'output4');
+        
+        disp('处理完成！');
+    else
+        disp(['未找到文件：', targetFileName]);
+    end
+end

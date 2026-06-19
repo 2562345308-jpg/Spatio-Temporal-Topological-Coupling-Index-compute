@@ -1,0 +1,82 @@
+%% 设置 MuTE 文件夹路径，包括所有子文件夹
+mutePath = ('/home/lexinning/LYJ/MuTE/MuTE_onlineVersion/'); % 根据你的路径进行调整 -> 这里只是一个示例
+cd(mutePath);
+addpath(genpath(pwd)); % 将所有子文件夹添加到 MATLAB 路径中
+
+nameDataDir = 'exampleToolbox/';
+
+rootPath = '/home/lexinning/LYJ/MuTE/G8/';
+folderList = dir(fullfile(rootPath));
+fileNum = size(folderList, 1);
+
+for k = 3:fileNum
+    a = folderList(k).name;
+    d = [a,'/'];
+
+    dataDir = ['/home/lexinning/LYJ/MuTE/G8/' d]; % 根据你的路径进行调整
+    outputDir = ['/home/lexinning/LYJ/MuTE/G/G8/' d]; % 设置输出目录
+    
+    % 检查当前目录是否包含名字包含 'Sleep stage N1' 的 .mat 文件
+    listRealization = dir([dataDir '*Sleep stage N1*.mat']);
+    if isempty(listRealization)
+        fprintf('跳过文件夹 %s，因为没有符合条件的 .mat 文件。\n', dataDir);
+        continue; % 跳过当前文件夹，继续下一个文件夹
+    end
+    
+    %% 注意：如果你可以运行并行会话，可以设置 numProcessors > 1
+    numProcessors = 1;
+       
+    %% 实验部分
+
+    cd(dataDir);
+
+    %% 定义用于加载数据文件的字符串
+    dataFileName = 'Sleep stage N1';
+    dataLabel = '';
+    dataExtension = '.mat';
+    
+    %% 创建存储文件夹
+    cd(outputDir);
+    resDir = [outputDir dataFileName '_' dataLabel '/'];
+    if (~exist([outputDir 'resDir'], 'dir'))
+        mkdir(resDir);
+    end
+    copyDir = [resDir 'entropyMatrices' dataLabel '/'];
+    if (~exist([resDir 'copyDir'], 'dir'))
+        mkdir(copyDir);
+    end
+
+    %% 定义结果目录
+
+    cd(outputDir);
+    resultDir = [resDir 'results' dataLabel '/'];
+    if (~exist([resDir 'resultDir'], 'dir'))
+        mkdir(resultDir);
+    end
+    
+    %% 定义实验参数
+    channels = 1:8;
+    samplingRate = 10;
+    pointsToDiscard = 5000;
+    autoPairwiseTarDriv = [1 1 1 1 1 1 1 1];
+    handPairwiseTarDriv = [0 0 0 0 0 0 0 0];
+    
+    %% 统计方法
+    fprintf('\n******************************\n\n');
+    disp('正在计算统计方法...');
+    fprintf('\n\n');
+
+    tic
+    [output1, params1] = parametersAndMethods(listRealization, samplingRate, pointsToDiscard, channels, autoPairwiseTarDriv, ...
+        handPairwiseTarDriv, resultDir, dataDir, copyDir, numProcessors, 'binnue', [], [], [], 5, 'multiv', 6, ...
+        @evaluateNonUniformEntropy, @quantization, [1 1], 10, 0.05, @generateConditionalTerm, 0, 0);
+    close all
+    toc
+
+end
+fprintf('\n\n');
+disp('...计算完成！');
+fprintf('\n\n');
+
+close all
+cd(mutePath);
